@@ -15,7 +15,6 @@ namespace ChatService.Observer
         private readonly int _port = 3333;
         IPHostEntry host;
         IPAddress ipAddress;
-        byte[] bytes = null; 
         private Message _message = null;
 
         public Client()
@@ -49,32 +48,38 @@ namespace ChatService.Observer
         public void BeginSendMessage()
         {
             try
-            {
-                while(true){ 
-                Console.WriteLine("Please enter a message: (to send message press enter) ");
-                string message = Console.ReadLine();
+            {                        
+                _message = new Message();
+                _message.MessageCount = 0;
 
-                if (message != null)
-                {
-                    _message = new Message();
+                //Console.WriteLine("Message: (to send message press enter, max message:10) ");
 
-                    // convert message into byte array.
-                    _message.ByteMessage = Encoding.ASCII.GetBytes(message);
+                while (_message.MessageCount < 10) // client can send max 10 messages
+                {    
 
-                    // send message to server through socket
-                    _clientSocket.BeginSend(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
+                    //string message = Console.ReadLine();
+                    string message = "Client sends message";
 
-                    ////receive response from server
-                    //int bytesReceived = _clientSocket.Receive(_message.ByteMessage);
+                    if (message != null)
+                    {
+                        // convert message into byte array.
+                        _message.ByteMessage = Encoding.ASCII.GetBytes(message);
 
-                    //Console.WriteLine("Echo message = {0} ", Encoding.ASCII.GetString(bytes, 0, bytesReceived));
+                        // send message to server through socket
+                        _clientSocket.BeginSend(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
+
+                        //receive response from server
+                        //int bytesReceived = _clientSocket.Receive(_message.ByteMessage);
+
+                        //Console.WriteLine("Echo message = {0} ", Encoding.ASCII.GetString(bytes, 0, bytesReceived));
+                    }
+                    else
+                    {
+                        Close();
+                    }
+                    _message.MessageCount++;
 
                 }
-                else
-                {
-                    Close();
-                }
-            }
 
             }
             catch (Exception e) 
@@ -91,8 +96,6 @@ namespace ChatService.Observer
         {
             try
             {
-                Console.WriteLine("in ConnectCallback");
-
                 _clientSocket.EndConnect(asyncResult);
             }
             catch(Exception e)
@@ -106,9 +109,8 @@ namespace ChatService.Observer
         {
             try
             {
-                Console.WriteLine("in SendCallback");
-
                 _clientSocket.EndSend(asyncResult);
+                //_clientSocket.Close();
             }
             catch (Exception e)
             {

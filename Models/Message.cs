@@ -4,6 +4,7 @@
     {
         public byte[] ByteMessage { get; set; }
         public string StringMessage { get; set; }
+        public int MessageCount { get; set; }
 
     }
 }

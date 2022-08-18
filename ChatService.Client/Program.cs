@@ -10,7 +10,6 @@ namespace ChatService.Client
 
             while(true)
                 Console.ReadLine();
-            //Console.WriteLine("Hello, World!");
         }
     }
 }

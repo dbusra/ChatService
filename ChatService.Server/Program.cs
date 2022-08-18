@@ -4,8 +4,8 @@
     {
         static void Main(string[] args)
         {
-            Observer.IServer client = new Observer.Server();
-            client.Accept();
+            Observer.IServer server = new Observer.Server();
+            server.Accept();
 
             while (true)
                 Console.ReadLine();
