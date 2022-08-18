@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Models;
 
 namespace ChatService.Observer
 {
@@ -14,15 +15,19 @@ namespace ChatService.Observer
         private readonly int _port = 3333;
         IPHostEntry host;
         IPAddress ipAddress;
-        byte[] bytes = null;
+        byte[] bytes = null; 
+        private Message _message = null;
+
         public Client()
         {
             try
-            {
+            {               
+                #region get remote end point
                 // get the remote ip address, it is used for establish connection, here localhost's ip : 127.0.0.1 
                 host = Dns.GetHostEntry("localhost");
                 ipAddress = host.AddressList[1];
                 IPEndPoint remoteEndPoint = new IPEndPoint(ipAddress, _port);
+                #endregion
 
                 // instantiating socket 
                 _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -38,30 +43,39 @@ namespace ChatService.Observer
         }
         public void Connect(IPEndPoint endPoint)
         {
-            //connect to remote end point.
+            //connect to remote end point, once connection established ConnectCallback is called.
             _clientSocket.BeginConnect(endPoint, new AsyncCallback(ConnectCallback), null);
         }
-        public void SendMessages()
+        public void BeginSendMessage()
         {
             try
             {
+                while(true){ 
                 Console.WriteLine("Please enter a message: (to send message press enter) ");
                 string message = Console.ReadLine();
+
                 if (message != null)
                 {
+                    _message = new Message();
+
                     // convert message into byte array.
-                    bytes = Encoding.ASCII.GetBytes(message);
+                    _message.ByteMessage = Encoding.ASCII.GetBytes(message);
 
                     // send message to server through socket
-                    _clientSocket.BeginSend(bytes,0,bytes.Length,SocketFlags.None, new AsyncCallback(SendCallback), null);
+                    _clientSocket.BeginSend(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
 
                     ////receive response from server
-                    //int bytesReceived = _clientSocket.Receive(bytes);
+                    //int bytesReceived = _clientSocket.Receive(_message.ByteMessage);
 
                     //Console.WriteLine("Echo message = {0} ", Encoding.ASCII.GetString(bytes, 0, bytesReceived));
 
+                }
+                else
+                {
                     Close();
                 }
+            }
+
             }
             catch (Exception e) 
             {
@@ -77,6 +91,8 @@ namespace ChatService.Observer
         {
             try
             {
+                Console.WriteLine("in ConnectCallback");
+
                 _clientSocket.EndConnect(asyncResult);
             }
             catch(Exception e)
@@ -90,6 +106,8 @@ namespace ChatService.Observer
         {
             try
             {
+                Console.WriteLine("in SendCallback");
+
                 _clientSocket.EndSend(asyncResult);
             }
             catch (Exception e)

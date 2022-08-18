@@ -6,6 +6,9 @@
         {
             Observer.IServer client = new Observer.Server();
             client.Accept();
+
+            while (true)
+                Console.ReadLine();
             //Console.WriteLine("Hello, World!");
         }
     }

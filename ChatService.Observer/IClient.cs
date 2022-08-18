@@ -9,8 +9,9 @@ namespace ChatService.Observer
 {
     public interface IClient
     {
+        //connect to remote end point
         void Connect(IPEndPoint endPoint);
-        void SendMessages();
+        void BeginSendMessage();
         void Close();
     }
 }

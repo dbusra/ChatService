@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -15,18 +16,20 @@ namespace ChatService.Observer
         private readonly int _maxRequestNumber = 10;
         IPHostEntry host;
         IPAddress ipAddress;
-        private byte[] _buffer = null;
-        private string _data = null;
+        private Message _message = null;
+
 
         // make ready the server to listen clients.
         public Server()
         {
             try
-            {
+            {            
+                #region get  local end point for binding
                 // get host ip address, it is used for establish connection, here localhost's ip : 127.0.0.1 
                 host = Dns.GetHostEntry("localhost");
                 ipAddress = host.AddressList[1];
                 IPEndPoint localEndPoint = new IPEndPoint(ipAddress, _port);
+                #endregion
 
                 // instantiating socket 
                 _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -57,7 +60,6 @@ namespace ChatService.Observer
             {
                 _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);               
                 //Console.WriteLine("Text received: {0}", _data);
-
             }
             catch(Exception e)
             {
@@ -72,12 +74,15 @@ namespace ChatService.Observer
             {
                 Console.WriteLine("in AcceptCallback");
                 // server accepts current client 
-                _clientSocket = _serverSocket.EndAccept(asyncResult); 
-                _buffer = new byte[_clientSocket.ReceiveBufferSize];
+                _clientSocket = _serverSocket.EndAccept(asyncResult);
+
+                _message = new Message();
+
+                _message.ByteMessage = new byte[_clientSocket.ReceiveBufferSize];
 
                 // begin receiving data from client, put received data to _bytes
                 //once data is received, ReceiveCallback method is called  
-                _clientSocket.BeginReceive(_buffer,0,_buffer.Length,SocketFlags.None,new AsyncCallback(ReceiveCallback), _clientSocket);
+                _clientSocket.BeginReceive(_message.ByteMessage, 0, _message.ByteMessage.Length,SocketFlags.None,new AsyncCallback(ReceiveCallback), _clientSocket);
                 Accept();
             }
             catch (Exception e)
@@ -95,34 +100,30 @@ namespace ChatService.Observer
                 
                 _clientSocket = (Socket)asyncResult.AsyncState;
                 //int bufferSize = _clientSocket.EndReceive(asyncResult);
-                _clientSocket.EndReceive(asyncResult);
-                _data += Encoding.ASCII.GetString(_buffer);
 
-                Console.WriteLine(_data);
-                //bool control = true;
+                SocketError error;
+                _clientSocket.EndReceive(asyncResult,out error);
+                
+                if (error == SocketError.Success)
+                {
+                    _message.StringMessage = Encoding.ASCII.GetString(_message.ByteMessage);
 
-                _clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _clientSocket);
+                    Console.WriteLine(_message.StringMessage);
+                    //bool control = true;
 
-                #region comment
-                //// start receiving data
-                //while (control) // if client sends multiple messages less than 1 sec set to false.
-                //{
-                //    _data += Encoding.ASCII.GetString(_buffer);
+                    _clientSocket.BeginReceive(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _clientSocket);
 
-                //    var readKey = Console.ReadKey();
-                //    if (readKey.Key.ToString() == "Enter") // if client press enter
-                //    {
-                //        break;
-                //    }
-                //}
-                #endregion
+                    //_serverSocket.SendAsync(_buffer,SocketFlags.None);
 
-                //_serverSocket.SendAsync(_buffer,SocketFlags.None);
-
-                //if (!control)
-                //{
-                //    Close();
-                //}
+                    //if (!control)
+                    //{
+                    //    Close();
+                    //}
+                }
+                else 
+                {
+                    Close();
+                } 
 
             }
             catch (Exception e)

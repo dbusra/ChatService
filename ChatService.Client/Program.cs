@@ -5,12 +5,11 @@ namespace ChatService.Client
     {
         static void Main(string[] args)
         {
-            Observer.Client client = new Observer.Client();
-            client.SendMessages();
-            
-            Observer.Client client2 = new Observer.Client();
-            client2.SendMessages();
+            Observer.IClient client = new Observer.Client();
+            client.BeginSendMessage();
 
+            while(true)
+                Console.ReadLine();
             //Console.WriteLine("Hello, World!");
         }
     }
