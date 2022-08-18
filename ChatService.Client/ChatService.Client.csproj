@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ChatService.Observer\ChatService.Observer.csproj" />
+  </ItemGroup>
+
 </Project>

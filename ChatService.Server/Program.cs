@@ -4,7 +4,9 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            Observer.IServer client = new Observer.Server();
+            client.Accept();
+            //Console.WriteLine("Hello, World!");
         }
     }
 }
