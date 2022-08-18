@@ -13,5 +13,6 @@ namespace ChatService.Observer
         void Accept();
         // close socket
         void Close();
+        void NotifyClients();
     }
 }

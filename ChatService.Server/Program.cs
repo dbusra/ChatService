@@ -9,7 +9,6 @@
 
             while (true)
                 Console.ReadLine();
-            //Console.WriteLine("Hello, World!");
         }
     }
 }

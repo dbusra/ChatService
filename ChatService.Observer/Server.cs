@@ -103,18 +103,7 @@ namespace ChatService.Observer
                 // begin receiving data from client, put received data to _bytes
                 //once data is received, ReceiveCallback method is called  
                 _clientSocket.BeginReceive(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _clientSocket);
-
-                GetCallCount();
-
-                if (_counterForReceiveMethodCall == 1)
-                {
-                    //warn client
-                }
-                else if(_counterForReceiveMethodCall > 1)
-                {
-                    //shutdown client;
-
-                }
+                             
 
                 Accept();
             }
@@ -143,6 +132,7 @@ namespace ChatService.Observer
 
                     _clientSocket.BeginReceive(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _clientSocket);
 
+                    NotifyClients();
                     //_serverSocket.SendAsync(_buffer,SocketFlags.None);
 
                     //if (!control)
@@ -175,6 +165,68 @@ namespace ChatService.Observer
                 _counterForReceiveMethodCall = 0;
 
             return _counterForReceiveMethodCall;
-        } 
+        }
+
+        public void NotifyClients()
+        {
+            GetCallCount();
+
+            if (_counterForReceiveMethodCall == 1)
+            {
+                //warn client
+                SendWarningMessage();
+            }
+            else if (_counterForReceiveMethodCall > 1)
+            {
+                //shutdown client;
+
+            }
+        }
+        public void SendWarningMessage()
+        {
+            try
+            {
+                _message = new Message();
+
+                    string message = "Server sends message";
+
+                    if (message != null)
+                    {
+                        // convert message into byte array.
+                        _message.ByteMessage = Encoding.ASCII.GetBytes(message);
+
+                        // send message to client through socket
+                        _serverSocket.BeginSend(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
+
+                    //receive response from client
+
+                    int bytesReceived = _clientSocket.Receive(_message.ByteMessage);
+
+                    Console.WriteLine("Echo message = {0} ", Encoding.ASCII.GetString(_message.ByteMessage, 0, bytesReceived));
+                }
+                    else
+                    {
+                        Close();
+                    }
+
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception("an error occurred while sending message! Exception: " + e.Message);
+            }
+        }
+        private void SendCallback(IAsyncResult asyncResult)
+        {
+            try
+            {
+                _serverSocket.EndSend(asyncResult);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("an error occurred while sending message! Exception: " + e.Message);
+
+            }
+        }
     }
 }
