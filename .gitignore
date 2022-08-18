@@ -16,5 +16,5 @@ obj/
 *.user
 *.txt
 *.png
-*.sln
+#*.sln
 *.vs
