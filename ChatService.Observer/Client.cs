@@ -48,17 +48,18 @@ namespace ChatService.Observer
         public void BeginSendMessage()
         {
             try
-            {                        
+            {
+                bool sendMessage = true;
                 _message = new Message();
                 _message.MessageCount = 0;
 
-                //Console.WriteLine("Message: (to send message press enter, max message:10) ");
+                Console.WriteLine("Message: (to send message press enter) ");
 
-                while (_message.MessageCount < 10) // client can send max 10 messages
+                while (sendMessage) 
                 {    
 
-                    //string message = Console.ReadLine();
-                    string message = "Client sends message";
+                    string message = Console.ReadLine();
+                    //string message = "Client sends message";
 
                     if (message != null)
                     {
@@ -77,7 +78,7 @@ namespace ChatService.Observer
                     {
                         Close();
                     }
-                    _message.MessageCount++;
+                   // _message.MessageCount++;
 
                 }
 
