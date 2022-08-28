@@ -128,17 +128,11 @@ namespace ChatService.Observer
                     _message.StringMessage = Encoding.ASCII.GetString(_message.ByteMessage);
 
                     Console.WriteLine(_message.StringMessage);
-                    //bool control = true;
 
                     _clientSocket.BeginReceive(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _clientSocket);
 
                     NotifyClients();
-                    //_serverSocket.SendAsync(_buffer,SocketFlags.None);
-
-                    //if (!control)
-                    //{
-                    //    Close();
-                    //}
+                    
                 }
                 else
                 {
@@ -174,59 +168,63 @@ namespace ChatService.Observer
             if (_counterForReceiveMethodCall == 1)
             {
                 //warn client
-                SendWarningMessage();
+                //SendWarningMessage();
             }
             else if (_counterForReceiveMethodCall > 1)
             {
                 //shutdown client;
+                //_clientSocket.Close();
 
             }
         }
-        public void SendWarningMessage()
-        {
-            try
-            {
-                _message = new Message();
 
-                    string message = "Server sends message";
+        #region send message to client //not complete
+        //public void SendWarningMessage()
+        //{
+        //    try
+        //    {
+        //        _message = new Message();
 
-                    if (message != null)
-                    {
-                        // convert message into byte array.
-                        _message.ByteMessage = Encoding.ASCII.GetBytes(message);
+        //            string message = "Server sends message";
 
-                        // send message to client through socket
-                        _serverSocket.BeginSend(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
+        //            if (message != null)
+        //            {
+        //                // convert message into byte array.
+        //                _message.ByteMessage = Encoding.ASCII.GetBytes(message);
 
-                    //receive response from client
+        //                // send message to client through socket
+        //                _serverSocket.BeginSend(_message.ByteMessage, 0, _message.ByteMessage.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
 
-                    int bytesReceived = _clientSocket.Receive(_message.ByteMessage);
+        //            //receive response from client
 
-                    Console.WriteLine("Echo message = {0} ", Encoding.ASCII.GetString(_message.ByteMessage, 0, bytesReceived));
-                }
-                    else
-                    {
-                        Close();
-                    }
+        //            int bytesReceived = _clientSocket.Receive(_message.ByteMessage);
+
+        //            Console.WriteLine("Echo message = {0} ", Encoding.ASCII.GetString(_message.ByteMessage, 0, bytesReceived));
+        //        }
+        //            else
+        //            {
+        //                Close();
+        //            }
 
 
-            }
-            catch (Exception e)
-            {
-                throw new Exception("an error occurred while sending message! Exception: " + e.Message);
-            }
-        }
-        private void SendCallback(IAsyncResult asyncResult)
-        {
-            try
-            {
-                _serverSocket.EndSend(asyncResult);
-            }
-            catch (Exception e)
-            {
-                throw new Exception("an error occurred while sending message! Exception: " + e.Message);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new Exception("an error occurred while sending message! Exception: " + e.Message);
+        //    }
+        //}
+        //private void SendCallback(IAsyncResult asyncResult)
+        //{
+        //    try
+        //    {
+        //        _serverSocket.EndSend(asyncResult);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new Exception("an error occurred while sending message! Exception: " + e.Message);
 
-            }
-        }
+        //    }
+        //}
+        #endregion
     }
 }
