@@ -18,8 +18,7 @@ namespace ChatService.Observer
         IPAddress ipAddress;
         private Message _message = null;
         private byte[] _bytes;
-
-        public List<string> MessageList = new List<string>();
+        const int MESSAGE_COUNT = 9;
 
         public Client()
         {
@@ -50,36 +49,31 @@ namespace ChatService.Observer
             {
                 bool sendMessage = true;
                 _message = new Message();
+                _message.MessageList = new List<string>();
                 _message.MessageCount = 0;
 
-                Console.WriteLine("Message: (to send message press enter) ");
+                //Console.WriteLine("Message: (to send message press enter) ");
 
-                while (sendMessage) 
-                {    
+                while (sendMessage)
+                {
+                    string message = Message(_message.MessageCount);
+                    UpdateMessageList(message);
 
-                    string message = Console.ReadLine();
-                    //string message = "Client sends message";
+                    // convert message into byte array.
+                    _bytes = Encoding.ASCII.GetBytes(message);
 
-                    
-                    if (!string.IsNullOrEmpty(message))
-                    {
-                        // convert message into byte array.
-                        _bytes = Encoding.ASCII.GetBytes(message);
+                    // send message to server through socket
+                    _clientSocket.BeginSend(_bytes, 0, _bytes.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
 
-                        // send message to server through socket
-                        _clientSocket.BeginSend(_bytes, 0, _bytes.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
+                    //receive response from server
+                    //int bytesReceived = _clientSocket.Receive(_bytes);
 
-                        //receive response from server
-                        //int bytesReceived = _clientSocket.Receive(_bytes);
+                    //Console.WriteLine("Echo message = {0} ", Encoding.ASCII.GetString(bytes, 0, bytesReceived));
 
-                        //Console.WriteLine("Echo message = {0} ", Encoding.ASCII.GetString(bytes, 0, bytesReceived));
-                    }
-                    //else
-                    //{
-                    //    Close();
-                    //}
-                   // _message.MessageCount++;
+                    _message.MessageCount++;
 
+                    if (_message.MessageCount > MESSAGE_COUNT) 
+                        break;
                 }
 
             }
@@ -132,17 +126,12 @@ namespace ChatService.Observer
         } 
         private string Message(int i)
         {
-            string message = (i + 1) + ". message";
-            MessageList.Add(message);
-
+            string message = (i + 1) + ". message\n";
             return message;
-        }
-        private void UpdateList()
+        }      
+        private void UpdateMessageList(string message)
         {
-            for (int i = 0; i < length; i++)
-            {
-
-            }
+            _message.MessageList.Add(message);
         }
     }
 }

@@ -149,6 +149,8 @@ namespace ChatService.Observer
 
                 if (error == SocketError.Success)
                 {
+                    Console.WriteLine("Messages from client:");
+
                     string message = Encoding.ASCII.GetString(_bytes);
 
                     Console.Write(message);

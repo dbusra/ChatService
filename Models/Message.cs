@@ -2,8 +2,8 @@
 {
     public class Message
     {
-        public byte[] ByteMessage { get; set; }
-        public string StringMessage { get; set; }
+        //it is used for test
+        public List<string> MessageList { get; set; }
         public int MessageCount { get; set; }
 
     }
